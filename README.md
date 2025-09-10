@@ -10,6 +10,7 @@ I’m passionate about turning data into insights and building tools that make w
 ## 📂 Projects
 
 ### [Project 1: Calculating Assets not Depreciating or Not on Auto Reorder
+### *AssetTracking.py*
 **Status:** ✅ Completed  
 A Python-based SQL query to compute total number of assets not depreciating or on autoreoder to track progress in a PowerBI dashboard
 
