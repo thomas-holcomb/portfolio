@@ -11,10 +11,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
-import numpy as np
 
 # Websites to navigate through
-links = [ "Links to teams season total data" ]
+links = ["Baseball reference links to loop through"
+]
 # Set up Chrome in headless mode
 chrome_options = Options()
 chrome_options.add_argument("--headless=new")  # New Chrome headless mode
@@ -67,7 +67,7 @@ game_pitching_df = pd.DataFrame()
 
 # Setup driver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-url2 = "Individual team stats URL"
+url2 = "Individualteamlink"
 
 driver.get(url2)
 time.sleep(3)  
@@ -84,45 +84,67 @@ individual_fielding_df = pd.concat([individual_fielding_df, tables2[2]], ignore_
 game_batting_df = pd.concat([game_batting_df, tables2[6]], ignore_index=True)
 game_pitching_df = pd.concat([game_pitching_df, tables2[7]], ignore_index=True)
 
-# Clean tables
-# batting_df = batting_df[batting_df['Tm'] != 'League Totals']
-# batting_df = batting_df.drop(columns="Aff")
-# batting_df.rename(columns={'Tm': 'Team'}, inplace=True)
-# batting_df = batting_df['AVG'].round(3)
-# batting_df = batting_df['SLG'].round(3)
-# batting_df = batting_df['OBP'].round(3)
-# batting_df = batting_df['OPS'].round(3)
+# Clean Total Batting
+batting_df = batting_df[batting_df['Tm'] != 'League Totals']
+batting_df = batting_df.drop(columns=["Aff", 'BatAge'])
+batting_df.rename(columns={'Tm': 'Team'}, inplace=True)
 
-# round is my issue currently
-
-pitching_df = pitching_df.drop(columns="Aff")
+# Clean Total Pitching
+pitching_df = pitching_df.drop(columns=["Aff", 'PAge', 'GS', 'GF'])
 pitching_df = pitching_df[pitching_df['Tm'] != 'League Totals']
 pitching_df.rename(columns={'Tm':'Team', 'RA9':'RA/9', 'H9':'H/9','HR9':'HR/9', 'BB9':'BB/9', 'SO9':'SO/9' }, inplace=True)
-pitching_df = pitching_df['ERA'].round(2)
 
+# Clean Total Standings
 standings_df.fillna({'Ties': 0},inplace=True)
 standings_df = standings_df.drop(columns="GB")
 standings_df.rename(columns={'Tm': 'Team'}, inplace=True)
 standings_df = standings_df.astype({'Ties': int})
 
+# Clean game by game batting
 game_batting_df.columns = game_batting_df.columns.str.strip()
-game_batting_df = game_batting_df['AVG'].round(3)
-# game_batting_df = np.where(game_batting_df['Loc'] == 'vs' , 'H', game_batting_df['Loc'])
-# if game_batting_df['W/L'] == 'L':
-#     game_batting_df['RA','RS'] = game_batting_df['Score'].str.split('-', expand = True)
-# else:
-#     game_batting_df['RS','RA'] = game_batting_df['Score'].str.split('-', expand = True)
+game_batting_df['Loc'] = game_batting_df['Loc'].fillna('vs')
+game_batting_df[['RS','RA']] = game_batting_df['Score'].str.split('-', expand=True).astype(int)
+game_batting_df = game_batting_df.drop(columns='Score')
 
+# Clean game by game pitching
+game_pitching_df.columns = game_pitching_df.columns.str.strip()
+game_pitching_df['Loc'] = game_pitching_df['Loc'].fillna('vs')
+game_pitching_df[['RS','RA']] = game_pitching_df['Score'].str.split('-', expand=True).astype(int)
+game_pitching_df = game_pitching_df.drop(columns='Score')
+
+    
+# Clean individual batting
+individual_batting_df = individual_batting_df[~individual_batting_df['Player'].str.contains('Total|Opponents', na=False)]
+individual_batting_df = individual_batting_df.astype({'#': int})
+individual_batting_df[['SB', 'SBA']] = individual_batting_df['SB-ATT'].str.split('-', expand=True)
+individual_batting_df['Player'] = individual_batting_df['Player'].str.split(r'\d', n=1).str[0].str.rstrip(", ")
+individual_batting_df[['GP', 'GS']] = individual_batting_df['GP-GS'].str.split('-', expand=True)
+individual_batting_df = individual_batting_df.drop(columns=['Bio Link', 'GP-GS', 'SB-ATT'])
+
+# Clean individual pitching
+individual_pitching_df = individual_pitching_df[~individual_pitching_df['Player'].str.contains('Total|Opponents', na=False)]
+individual_pitching_df = individual_pitching_df.astype({'#': int})
+individual_pitching_df['Player'] = individual_pitching_df['Player'].str.split(r'\d', n=1).str[0].str.rstrip(", ")
+individual_pitching_df[['APP', 'GS']] = individual_pitching_df['APP-GS'].str.split('-', expand=True)
+individual_pitching_df[['W', 'L']] = individual_pitching_df['W-L'].str.split('-', expand=True)
+individual_pitching_df = individual_pitching_df.drop(columns=['Bio Link', 'APP-GS', 'SHO', 'W-L'])
+
+# Clean individual fielding
+individual_fielding_df = individual_fielding_df[~individual_fielding_df['Player'].str.contains('Total|Opponents', na=False)]
+individual_fielding_df['Player'] = individual_fielding_df['Player'].str.split(r'\d', n=1).str[0].str.rstrip(", ")
+individual_fielding_df = individual_fielding_df.astype({'#': int})
+individual_fielding_df = individual_fielding_df.rename(columns={'CSB':'CS'})
+individual_fielding_df = individual_fielding_df.drop(columns='Bio Link')
 
 
 # Save results
-# batting_df.to_csv("totalbatting.csv", index=False)
-# pitching_df.to_csv("totalpitching.csv", index=False)
+batting_df.to_csv("totalbatting.csv", index=False)
+pitching_df.to_csv("totalpitching.csv", index=False)
 standings_df.to_csv("totalstandings.csv", index=False)
-# individual_batting_df.to_csv("individualbatting.csv", index=False)
-# individual_pitching_df.to_csv("individualpitching.csv", index=False)
-# individual_fielding_df.to_csv("individualfielding.csv", index=False)
+individual_batting_df.to_csv("individualbatting.csv", index=False)
+individual_pitching_df.to_csv("individualpitching.csv", index=False)
+individual_fielding_df.to_csv("individualfielding.csv", index=False)
 game_batting_df.to_csv("gamebatting.csv", index=False)
-# game_pitching_df.to_csv("gamepitching.csv", index=False)
+game_pitching_df.to_csv("gamepitching.csv", index=False)
 
 
