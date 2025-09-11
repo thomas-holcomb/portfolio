@@ -23,8 +23,10 @@ A Python-based SQL query to compute total number of assets not depreciating or o
 
 ### [Project 2: Webscraping Baseball Reference
 ### *Webscraping Baseball.py*
-**Status:** 🚧 In Progress  
+**Status:** ✅ Complete  
 A Python automation tool for webscraping for database creation.
+
+Next step: Researching SQL database to upload to
 
 **Highlights:**
 - Automates data pulling process using **Selenium**
