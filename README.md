@@ -35,6 +35,8 @@ Uploaded to PostGres through Dbeaver
 ### Beginning 10/20
 **Status:** 🚧 Planning in Progress
 
+---
+
 **Highlights:**
 - Automates data pulling process using **Selenium**
 - Uses **Pandas** for data cleaning
