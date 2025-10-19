@@ -29,6 +29,8 @@ Uploaded to PostGres through Dbeaver
 
 **Next Step: Analytics in SQL**
 
+---
+
 ### [Project 3: EDA on Customer Churn Dataset
 ### Beginning 10/20
 **Status:** 🚧 Planning in Progress
