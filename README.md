@@ -31,9 +31,10 @@ Uploaded to PostGres through Dbeaver
 
 ---
 
-### [Project 3: EDA on Customer Churn Dataset
-### Beginning 10/20
-**Status:** 🚧 Planning in Progress
+### [Project 3: Monte Carlo Simulation
+### *BeginningMonteCarlo.py*
+**Status:** 🚧 In Progress
+A python script pulling, cleaning and structuring data from schedule links.  Designed to create predictive analytics directly pulled from realistic probabilities in D3 Baseball.
 
 ---
 
